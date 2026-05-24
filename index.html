@@ -28,7 +28,7 @@
             header, footer, nav, .tab-btn, button, .no-print, 
             #custom-alert, #upload-success-alert, #upload-prompt, 
             #poster-file-input, .flex-row-buttons, .action-btn,
-            #upload-preview, #student-name-container {
+            #student-name-container {
                 display: none !important;
             }
 
@@ -465,7 +465,7 @@
                     <div class="border p-3 rounded-lg hover:border-indigo-400 transition bg-white shadow-xs"><p class="font-semibold text-slate-800">4. Cita-citaku</p><p class="text-slate-400 mt-1">Inspirasi & tujuan hidup masa depan.</p></div>
                     <div class="border p-3 rounded-lg hover:border-indigo-400 transition bg-white shadow-xs"><p class="font-semibold text-slate-800">5. Makan Sehat</p><p class="text-slate-400 mt-1">Promosi pola makan seimbang.</p></div>
                     <div class="border p-3 rounded-lg hover:border-indigo-400 transition bg-white shadow-xs"><p class="font-semibold text-slate-800">6. Jaga Kebersihan</p><p class="text-slate-400 mt-1">Merawat lingkungan sekolah.</p></div>
-                    <div class="border p-3 rounded-lg hover:border-indigo-400 transition bg-white shadow-xs"><p class="font-semibold text-slate-800">7. Dampak Positif Medsos</p><p class="text-slate-400 mt-1">Konten inovatif & edukatif.</p></div>
+                    <div class="border p-3 rounded-lg hover:border-indigo-400 transition bg-white shadow-xs"><p class="font-semibold text-slate-800">7. Dampak Positif Medsos</p><p class="text-slate-400 mt-1">Konten inspiratif & edukatif.</p></div>
                     <div class="border p-3 rounded-lg hover:border-indigo-400 transition bg-white shadow-xs"><p class="font-semibold text-slate-800">8. Festival Budaya</p><p class="text-slate-400 mt-1">Kekayaan budaya lokal Indonesia.</p></div>
                 </div>
 
@@ -903,6 +903,8 @@
         let correctAnswersCount = 0;
         let selectedOptionIndex = null;
         let currentUploadedFile = null;
+        let savedPosterDataUrl = null; // Menyimpan data gambar/file Base64 secara permanen
+        let savedPosterType = null;    // Menyimpan tipe data file secara permanen
 
         // Set total questions on page load
         document.addEventListener('DOMContentLoaded', () => {
@@ -1006,16 +1008,15 @@
             // Ambil data nama & kelas dari LKPD secara otomatis
             syncStudentData();
             
-            // Integrasikan pratinjau berkas poster ke sertifikat
+            // Integrasikan pratinjau berkas poster ke sertifikat dari data tersimpan permanen
             const certPlaceholder = document.getElementById('cert-poster-placeholder');
             const certImg = document.getElementById('cert-poster-img');
             const certPdf = document.getElementById('cert-poster-pdf');
 
-            if (currentUploadedFile) {
+            if (savedPosterDataUrl) {
                 certPlaceholder.classList.add('hidden');
-                if (currentUploadedFile.type.startsWith('image/')) {
-                    const originalImg = document.getElementById('image-preview');
-                    certImg.src = originalImg.src;
+                if (savedPosterType && savedPosterType.startsWith('image/')) {
+                    certImg.src = savedPosterDataUrl;
                     certImg.classList.remove('hidden');
                     certPdf.classList.add('hidden');
                 } else {
@@ -1144,6 +1145,8 @@
 
         function clearUploadedFile() {
             currentUploadedFile = null;
+            savedPosterDataUrl = null;
+            savedPosterType = null;
             document.getElementById('poster-file-input').value = '';
             document.getElementById('upload-preview').classList.add('hidden');
             document.getElementById('upload-prompt').classList.remove('hidden');
@@ -1151,13 +1154,22 @@
 
         function submitPoster() {
             if (!currentUploadedFile) return;
+            
+            // Simpan data berkas saat ini secara aman untuk diintegrasikan ke sertifikat
+            savedPosterType = currentUploadedFile.type;
+            if (currentUploadedFile.type.startsWith('image/')) {
+                savedPosterDataUrl = document.getElementById('image-preview').src;
+            } else {
+                savedPosterDataUrl = "pdf";
+            }
+            
             document.getElementById('success-file-name').innerText = currentUploadedFile.name;
             document.getElementById('upload-success-alert').classList.remove('hidden');
         }
 
         function closeUploadSuccess() {
             document.getElementById('upload-success-alert').classList.add('hidden');
-            clearUploadedFile(); // Reset zona upload setelah tugas dikirim
+            // JANGAN panggil clearUploadedFile() di sini agar berkas tetap tertinggal di UI LKPD dan memori kuis
         }
     </script>
 </body>
