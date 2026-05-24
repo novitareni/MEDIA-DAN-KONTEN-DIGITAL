@@ -39,7 +39,7 @@
                 width: 100% !important;
             }
 
-            /* PAKSA SEMUA TAB MENJADI AKTIF/TERLIHAT DI CETAKAN PDF SECARA BERURUTAN */
+            /* DEFAULT PRINT MODE (CETAK SEMUA TAB): Tampilkan Materi & LKPD & Worksheet */
             .tab-content {
                 display: block !important;
                 opacity: 1 !important;
@@ -192,7 +192,7 @@
             body.print-cert-mode #quiz-result {
                 display: block !important;
                 border: 6px double #4f46e5 !important;
-                padding: 4rem 3rem !important;
+                padding: 3rem 2rem !important;
                 margin: 0 auto !important;
                 box-shadow: none !important;
                 background: white !important;
@@ -200,6 +200,9 @@
                 max-width: 650px !important;
                 text-align: center !important;
                 page-break-inside: avoid !important;
+            }
+            body.print-cert-mode #cert-poster-img {
+                max-height: 120px !important;
             }
         }
     </style>
@@ -519,10 +522,23 @@
                     <h3 id="cert-student-name" class="text-2xl font-extrabold text-indigo-900 tracking-wide font-poppins">Siswa Pembelajar Informatika</h3>
                     <p id="cert-student-class" class="text-sm font-medium text-slate-600">Kelas: X</p>
                     
-                    <div class="py-4">
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Nilai Evaluasi:</p>
-                        <div class="relative w-28 h-28 mx-auto flex items-center justify-center bg-indigo-50 rounded-full border-4 border-indigo-500 shadow-sm">
-                            <span id="final-score" class="text-4xl font-extrabold text-indigo-600">0</span>
+                    <!-- Lampiran Tugas Poster yang Diupload Siswa -->
+                    <div class="border border-slate-200 bg-white p-3 rounded-lg max-w-[200px] mx-auto shadow-sm page-break-inside-avoid">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Karya Poster Terlampir:</p>
+                        <div id="cert-poster-container" class="flex items-center justify-center min-h-[110px] bg-slate-50 border border-dashed border-slate-200 rounded overflow-hidden">
+                            <p id="cert-poster-placeholder" class="text-[9px] text-slate-400 px-2 leading-relaxed">Belum mengunggah karya poster di LKPD</p>
+                            <img id="cert-poster-img" src="#" alt="Poster Mandiri" class="hidden w-full h-auto object-contain max-h-[140px]">
+                            <div id="cert-poster-pdf" class="hidden text-center p-2">
+                                <i class="fa-regular fa-file-pdf text-3xl text-rose-500"></i>
+                                <p class="text-[9px] text-slate-500 mt-1">Format Dokumen PDF</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="py-2">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Nilai Evaluasi:</p>
+                        <div class="relative w-24 h-24 mx-auto flex items-center justify-center bg-indigo-50 rounded-full border-4 border-indigo-500 shadow-sm">
+                            <span id="final-score" class="text-3xl font-extrabold text-indigo-600">0</span>
                         </div>
                     </div>
                     
@@ -990,6 +1006,28 @@
             // Ambil data nama & kelas dari LKPD secara otomatis
             syncStudentData();
             
+            // Integrasikan pratinjau berkas poster ke sertifikat
+            const certPlaceholder = document.getElementById('cert-poster-placeholder');
+            const certImg = document.getElementById('cert-poster-img');
+            const certPdf = document.getElementById('cert-poster-pdf');
+
+            if (currentUploadedFile) {
+                certPlaceholder.classList.add('hidden');
+                if (currentUploadedFile.type.startsWith('image/')) {
+                    const originalImg = document.getElementById('image-preview');
+                    certImg.src = originalImg.src;
+                    certImg.classList.remove('hidden');
+                    certPdf.classList.add('hidden');
+                } else {
+                    certImg.classList.add('hidden');
+                    certPdf.classList.remove('hidden');
+                }
+            } else {
+                certPlaceholder.classList.remove('hidden');
+                certImg.classList.add('hidden');
+                certPdf.classList.add('hidden');
+            }
+
             // Hitung nilai akhir berbasis skala 100 secara dinamis
             const finalScore = Math.round((correctAnswersCount / questions.length) * 100);
             document.getElementById('final-score').innerText = finalScore;
