@@ -28,7 +28,7 @@
             header, footer, nav, .tab-btn, button, .no-print, 
             #custom-alert, #upload-success-alert, #upload-prompt, 
             #poster-file-input, .flex-row-buttons, .action-btn,
-            #upload-preview, #student-name-container {
+            #student-name-container {
                 display: none !important;
             }
 
@@ -90,9 +90,55 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 1rem !important;
             }
-            /* Sembunyikan zona upload saat cetak agar dokumen LKPD terlihat bersih */
+            /* Format Input Nama & Kelas agar menyerupai garis tulis manual saat dicetak */
+            #lkpd input {
+                border: none !important;
+                border-bottom: 1px dashed black !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            
+            /* Tampilkan drop-zone dengan gaya cetak yang rapi */
             #drop-zone {
+                display: block !important;
+                border: 2px dashed #cbd5e1 !important;
+                background: #f8fafc !important;
+                padding: 1.5rem !important;
+                border-radius: 0.75rem !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* Jika gambar poster atau PDF sudah diunggah, sesuaikan gaya bingkainya */
+            #drop-zone:has(#upload-preview:not(.hidden)) {
+                border: 1px solid #cbd5e1 !important;
+                background: white !important;
+            }
+
+            /* Tampilkan pesan instruksi kosong jika belum ada file yang diunggah */
+            #drop-zone::before {
+                content: "[ Tempat Menempelkan / Menggambar Karya Poster Mandiri ]";
+                display: block;
+                font-size: 11pt;
+                color: #64748b;
+                font-weight: 500;
+                padding: 3rem 1rem !important;
+                text-align: center !important;
+            }
+
+            /* Sembunyikan pesan kosong jika pratinjau file aktif */
+            #drop-zone:has(#upload-preview:not(.hidden))::before {
                 display: none !important;
+            }
+
+            /* Pastikan pratinjau gambar responsif dan berada di tengah saat dicetak */
+            #image-preview {
+                max-width: 100% !important;
+                max-height: 350px !important;
+                margin: 0 auto !important;
+                display: block !important;
             }
 
             /* --- HALAMAN 4 & 5: CETAK LEMBAR KERJA SOAL KUIS LENGKAP --- */
@@ -293,6 +339,18 @@
                     </div>
                 </div>
 
+                <!-- Identitas Siswa -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+                    <div>
+                        <label for="lkpd-student-name" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Nama Lengkap:</label>
+                        <input type="text" id="lkpd-student-name" placeholder="Ketik nama lengkap Anda..." class="w-full bg-white px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                    </div>
+                    <div>
+                        <label for="lkpd-student-class" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Kelas / No. Absen:</label>
+                        <input type="text" id="lkpd-student-class" placeholder="Contoh: X-A / 12" class="w-full bg-white px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                    </div>
+                </div>
+
                 <!-- Petunjuk Pengerjaan -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
                     <div class="bg-slate-50 p-4 rounded-lg">
@@ -309,7 +367,7 @@
                     </div>
                 </div>
 
-                <!-- Panel Input/Unggah Berkas Interaktif (Disembunyikan Otomatis saat Cetak) -->
+                <!-- Panel Input/Unggah Berkas Interaktif -->
                 <div class="border-2 border-dashed border-slate-200 hover:border-indigo-400 bg-slate-50/50 rounded-xl p-6 md:p-8 mb-6 text-center transition duration-200 relative" id="drop-zone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave()" ondrop="handleDrop(event)">
                     <input type="file" id="poster-file-input" accept="image/png, image/jpeg, application/pdf" class="hidden" onchange="handleFileSelect(event)">
                     
@@ -329,7 +387,7 @@
 
                     <!-- Kondisi Setelah Upload (Pratinjau Berkas) -->
                     <div id="upload-preview" class="hidden space-y-4">
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pratinjau Hasil Unggahan Berkas:</p>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider no-print">Pratinjau Hasil Unggahan Berkas:</p>
                         
                         <div class="max-w-[200px] mx-auto bg-white p-2 rounded-lg shadow-sm border border-slate-200">
                             <!-- Pratinjau Gambar -->
@@ -347,8 +405,8 @@
                             <p id="preview-file-size" class="text-xs text-slate-400"></p>
                         </div>
 
-                        <!-- Tombol Aksi Unggahan -->
-                        <div class="flex items-center justify-center gap-2">
+                        <!-- Tombol Aksi Unggahan (Hanya Tampil di Layar, Sembunyikan Saat Cetak PDF) -->
+                        <div class="flex items-center justify-center gap-2 no-print">
                             <button onclick="submitPoster()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-paper-plane"></i> Kirim Tugas
                             </button>
@@ -706,7 +764,7 @@
                 type: "Analisis",
                 q: "Sekolah ingin mengadakan kampanye 'Lingkungan Bersih'. Target audiensnya adalah orang tua siswa dan warga sekitar sekolah (usia 40+). Platform media sosial mana yang paling strategis untuk dipilih?",
                 options: [
-                    "TikTok dan Discord.",
+                    "TikTok and Discord.",
                     "Facebook dan WhatsApp Group.",
                     "Twitter (X) dan Line.",
                     "Snapchat dan Pinterest."
