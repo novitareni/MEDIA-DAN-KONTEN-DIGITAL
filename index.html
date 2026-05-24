@@ -343,11 +343,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
                     <div>
                         <label for="lkpd-student-name" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Nama Lengkap:</label>
-                        <input type="text" id="lkpd-student-name" placeholder="Ketik nama lengkap Anda..." class="w-full bg-white px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                        <input type="text" id="lkpd-student-name" placeholder="Ketik nama lengkap Anda..." class="w-full bg-white px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium font-poppins">
                     </div>
                     <div>
                         <label for="lkpd-student-class" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Kelas / No. Absen:</label>
-                        <input type="text" id="lkpd-student-class" placeholder="Contoh: X-A / 12" class="w-full bg-white px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                        <input type="text" id="lkpd-student-class" placeholder="Contoh: X-A / 12" class="w-full bg-white px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium font-poppins">
                     </div>
                 </div>
 
@@ -472,18 +472,26 @@
 
             <!-- Result Screen -->
             <div id="quiz-result" class="hidden bg-white p-8 rounded-2xl text-center shadow-sm border border-slate-100 max-w-xl mx-auto space-y-6">
-                <h2 class="text-2xl font-bold text-slate-800">Hasil Uji Pemahaman</h2>
+                <h2 class="text-2xl font-bold text-slate-800">Hasil Kuis Evaluasi</h2>
                 
-                <!-- Input Nama Siswa untuk Sertifikat -->
-                <div class="max-w-xs mx-auto text-left space-y-1">
-                    <label for="student-name" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Lengkap Siswa:</label>
-                    <input type="text" id="student-name" placeholder="Ketik nama Anda di sini..." class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center font-medium">
+                <!-- Desain Box Sertifikat Formal -->
+                <div class="border-4 border-double border-indigo-500 p-8 rounded-xl bg-indigo-50/10 space-y-4 max-w-lg mx-auto shadow-inner">
+                    <p class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Sertifikat Kelulusan Evaluasi</p>
+                    <div class="border-b border-indigo-200 my-2"></div>
+                    
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Diberikan Kepada:</p>
+                    <h3 id="cert-student-name" class="text-2xl font-extrabold text-indigo-900 tracking-wide font-poppins">Siswa Pembelajar Informatika</h3>
+                    <p id="cert-student-class" class="text-sm font-medium text-slate-600">Kelas: -</p>
+                    
+                    <div class="py-4">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Nilai Evaluasi:</p>
+                        <div class="relative w-28 h-28 mx-auto flex items-center justify-center bg-indigo-50 rounded-full border-4 border-indigo-500 shadow-sm">
+                            <span id="final-score" class="text-4xl font-extrabold text-indigo-600">0</span>
+                        </div>
+                    </div>
+                    
+                    <p id="result-message" class="text-slate-600 text-xs font-medium px-4 leading-relaxed">Hebat! Kamu telah menyelesaikan semua soal.</p>
                 </div>
-
-                <div class="relative w-36 h-36 mx-auto flex items-center justify-center bg-indigo-50 rounded-full border-4 border-indigo-500">
-                    <span id="final-score" class="text-4xl font-extrabold text-indigo-600">0</span>
-                </div>
-                <p id="result-message" class="text-slate-600 text-sm font-medium px-4">Hebat! Kamu telah menyelesaikan semua soal.</p>
                 
                 <!-- Tombol Aksi -->
                 <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -857,7 +865,6 @@
             currentQuestionIndex = 0;
             correctAnswersCount = 0;
             selectedOptionIndex = null;
-            document.getElementById('student-name').value = ''; // Reset input nama
             document.getElementById('quiz-start').classList.add('hidden');
             document.getElementById('quiz-result').classList.add('hidden');
             document.getElementById('quiz-play').classList.remove('hidden');
@@ -922,6 +929,14 @@
             document.getElementById('quiz-play').classList.add('hidden');
             document.getElementById('quiz-result').classList.remove('hidden');
             
+            // Ambil data nama & kelas dari LKPD secara otomatis
+            const lkpdName = document.getElementById('lkpd-student-name').value.trim();
+            const lkpdClass = document.getElementById('lkpd-student-class').value.trim();
+            
+            // Masukkan data ke sertifikat kuis
+            document.getElementById('cert-student-name').innerText = lkpdName || "Siswa Pembelajar Informatika";
+            document.getElementById('cert-student-class').innerText = lkpdClass ? `Kelas: ${lkpdClass}` : "Kelas: X";
+            
             // Hitung nilai akhir berbasis skala 100 secara dinamis
             const finalScore = Math.round((correctAnswersCount / questions.length) * 100);
             document.getElementById('final-score').innerText = finalScore;
@@ -953,10 +968,6 @@
 
         // Fungsi Cetak PDF Sertifikat Hasil
         function printResult() {
-            const nameField = document.getElementById('student-name');
-            if (nameField.value.trim() === "") {
-                nameField.value = "Siswa Pembelajar Informatika";
-            }
             triggerUniversalPrint();
         }
 
